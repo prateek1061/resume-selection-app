@@ -8,7 +8,7 @@ unstructured==0.11.5
 pinecone-client==2.2.4
 pypdf==3.17.2
 sentence-transformers==2.2.2
-torch==2.0.1
-torchvision==0.15.2
-torchaudio==2.0.2
+torch==2.2.0
+torchvision==0.17.0
+torchaudio==2.2.0
 huggingface_hub==0.16.4
