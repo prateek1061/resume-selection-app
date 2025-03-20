@@ -12,3 +12,4 @@ torch
 torchvision
 torchaudio
 huggingface_hub==0.16.4
+setuptools==58.0.0
