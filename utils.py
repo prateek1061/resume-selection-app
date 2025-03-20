@@ -46,19 +46,19 @@ def create_embeddings_load_data():
 
 
 #Function to push data to Vector Store - Pinecone here
-def push_to_pinecone(pinecone_apikey,pinecone_index_name,embeddings,docs):
+def push_to_pinecone(pinecone_apikey,PINECONE_INDEX_NAME,embeddings,docs):
     pinecone_environment = os.getenv("PINECONE_ENVIRONMENT")
     pinecone.init(
     api_key=pinecone_apikey,
     environment=pinecone_environment
     )
     
-    Pinecone.from_documents(docs, embeddings, index_name=pinecone_index_name)
+    Pinecone.from_documents(docs, embeddings, index_name=PINECONE_INDEX_NAME)
     
 
 
 #Function to pull infrmation from Vector Store - Pinecone here
-def pull_from_pinecone(pinecone_apikey,pinecone_index_name,embeddings):
+def pull_from_pinecone(pinecone_apikey,PINECONE_INDEX_NAME,embeddings):
     # For some of the regions allocated in pinecone which are on free tier, the data takes upto 10secs for it to available for filtering
     #so I have introduced 20secs here, if its working for you without this delay, you can remove it :)
     #https://docs.pinecone.io/docs/starter-environment
@@ -69,7 +69,7 @@ def pull_from_pinecone(pinecone_apikey,pinecone_index_name,embeddings):
     environment=pinecone_environment
     )
 
-    index_name = pinecone_index_name
+    index_name = PINECONE_INDEX_NAME
 
     index = Pinecone.from_existing_index(index_name,embeddings)
     return index
@@ -77,13 +77,13 @@ def pull_from_pinecone(pinecone_apikey,pinecone_index_name,embeddings):
 
 
 #Function to help us get relavant documents from vector store - based on user input
-def similar_docs(query,k,pinecone_apikey,pinecone_index_name,embeddings,unique_id):
+def similar_docs(query,k,pinecone_apikey,PINECONE_INDEX_NAME,embeddings,unique_id):
 
     pinecone.init(
     api_key=pinecone_apikey,
     )
 
-    index_name = pinecone_index_name
+    index_name = PINECONE_INDEX_NAME
 
     index = pull_from_pinecone(pinecone_apikey,index_name,embeddings)
     similar_docs = index.similarity_search_with_score(query, int(k),{"unique_id":unique_id})
