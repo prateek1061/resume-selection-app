@@ -1,4 +1,4 @@
-ofrom langchain_community.vectorstores import Pinecone
+from langchain_community.vectorstores import Pinecone
 from langchain.llms import OpenAI
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.schema import Document
