@@ -1,7 +1,16 @@
 import streamlit as st
+import os
+import subprocess
 from dotenv import load_dotenv
 from utils import *
 import uuid
+
+def install_dependencies():
+    subprocess.run(["pip", "install", "--upgrade", "setuptools", "sentence-transformers", "torch"], check=True)
+
+install_dependencies()
+
+from sentence_transformers import SentenceTransformer
 
 #Creating session variables
 if 'unique_id' not in st.session_state:
