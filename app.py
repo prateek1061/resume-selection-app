@@ -9,9 +9,9 @@ if 'unique_id' not in st.session_state:
     st.session_state['unique_id'] =''
 
 def main():
-    pineconekey = keys.PINECONE_API_KEY
-    HUGGINGFACEHUB_API_TOKEN = keys.HUGGINGFACEHUB_API_TOKEN
-    OPENAI_API_KEY = keys.OPENAI_API_KEY
+    pineconekey = st.secrets["PINECONE_API_KEY"]
+    HUGGINGFACEHUB_API_TOKEN = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
+    OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 
     st.set_page_config(page_title="Resume Screening Assistance")
     st.title("HR - Resume Screening Assistance...💁 ")
