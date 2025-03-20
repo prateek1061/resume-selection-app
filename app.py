@@ -2,7 +2,6 @@ import streamlit as st
 from dotenv import load_dotenv
 from utils import *
 import uuid
-import keys
 
 #Creating session variables
 if 'unique_id' not in st.session_state:
