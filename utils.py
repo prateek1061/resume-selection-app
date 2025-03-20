@@ -1,106 +1,82 @@
-from langchain_community.vectorstores import Pinecone
-from langchain.llms import OpenAI
-from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
+from langchain.vectorstores import Pinecone
+from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.schema import Document
 import pinecone
 from pypdf import PdfReader
-from langchain.llms.openai import OpenAI
 from langchain.chains.summarize import load_summarize_chain
-from langchain.llms import HuggingFaceHub
 import os
 import time
 
 
-#Extract Information from PDF file
+# ✅ Extract text from a PDF file
 def get_pdf_text(pdf_doc):
     text = ""
     pdf_reader = PdfReader(pdf_doc)
     for page in pdf_reader.pages:
-        text += page.extract_text()
+        text += page.extract_text() or ""  # Ensure it doesn't break on empty pages
     return text
 
 
-
-# iterate over files in 
-# that user uploaded PDF files, one by one
+# ✅ Convert uploaded PDFs into documents
 def create_docs(user_pdf_list, unique_id):
-    docs=[]
-    for filename in user_pdf_list:
-        
-        chunks=get_pdf_text(filename)
+    docs = []
+    for pdf_file in user_pdf_list:
+        chunks = get_pdf_text(pdf_file)
 
-        #Adding items to our list - Adding data & its metadata
+        # Add metadata for retrieval
         docs.append(Document(
             page_content=chunks,
-            metadata={"name": filename.name,"id":filename.file_id,"type=":filename.type,"size":filename.size,"unique_id":unique_id},
+            metadata={
+                "name": pdf_file.name,
+                "unique_id": unique_id
+            }
         ))
 
     return docs
 
 
-#Create embeddings instance
+# ✅ Create OpenAI embeddings instance
 def create_embeddings_load_data():
-    #embeddings = OpenAIEmbeddings()
-    embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    return embeddings
+    return OpenAIEmbeddings(model="text-embedding-ada-002")
 
 
-#Function to push data to Vector Store - Pinecone here
-def push_to_pinecone(pinecone_apikey,pinecone_index_name,embeddings,docs):
-    pinecone_environment = os.getenv("PINECONE_ENVIRONMENT")
-    pinecone.init(
-    api_key=pinecone_apikey,
-    environment=pinecone_environment
-    )
-    
+# ✅ Initialize and connect to Pinecone
+def init_pinecone():
+    pinecone_api_key = os.getenv("PINECONE_API_KEY")
+    pinecone_env = os.getenv("PINECONE_ENVIRONMENT")
+    pinecone.init(api_key=pinecone_api_key, environment=pinecone_env)
+
+
+# ✅ Push documents to Pinecone
+def push_to_pinecone(pinecone_index_name, embeddings, docs):
+    init_pinecone()
     Pinecone.from_documents(docs, embeddings, index_name=pinecone_index_name)
-    
 
 
-#Function to pull infrmation from Vector Store - Pinecone here
-def pull_from_pinecone(pinecone_apikey,pinecone_index_name,embeddings):
-    # For some of the regions allocated in pinecone which are on free tier, the data takes upto 10secs for it to available for filtering
-    #so I have introduced 20secs here, if its working for you without this delay, you can remove it :)
-    #https://docs.pinecone.io/docs/starter-environment
-    print("20secs delay...")
-    time.sleep(20)
-    pinecone.init(
-    api_key=pinecone_apikey,
-    environment=pinecone_environment
-    )
-
-    index_name = pinecone_index_name
-
-    index = Pinecone.from_existing_index(index_name,embeddings)
-    return index
+# ✅ Connect to an existing Pinecone index
+def get_pinecone_index():
+    init_pinecone()
+    pinecone_index_name = os.getenv("PINECONE_INDEX_NAME")
+    return pinecone.Index(pinecone_index_name)
 
 
+# ✅ Fetch similar resumes from Pinecone
+def similar_docs(query, k):
+    embeddings = create_embeddings_load_data()
+    query_embedding = embeddings.embed_query(query)
 
-#Function to help us get relavant documents from vector store - based on user input
-def similar_docs(query,k,pinecone_apikey,pinecone_index_name,embeddings,unique_id):
+    index = get_pinecone_index()
+    results = index.query(query_embedding, top_k=int(k), include_metadata=True)
 
-    pinecone.init(
-    api_key=pinecone_apikey,
-    )
-
-    index_name = pinecone_index_name
-
-    index = pull_from_pinecone(pinecone_apikey,index_name,embeddings)
-    similar_docs = index.similarity_search_with_score(query, int(k),{"unique_id":unique_id})
-    #print(similar_docs)
-    return similar_docs
+    return results
 
 
-# Helps us get the summary of a document
+# ✅ Summarize document using OpenAI
 def get_summary(current_doc):
+    from langchain.llms import OpenAI
+
     llm = OpenAI(temperature=0)
-    #llm = HuggingFaceHub(repo_id="bigscience/bloom", model_kwargs={"temperature":1e-10})
     chain = load_summarize_chain(llm, chain_type="map_reduce")
     summary = chain.run([current_doc])
 
     return summary
-
-
-
-
-    
