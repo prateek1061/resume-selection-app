@@ -47,7 +47,7 @@ def create_embeddings_load_data():
 
 #Function to push data to Vector Store - Pinecone here
 def push_to_pinecone(pinecone_apikey,pinecone_index_name,embeddings,docs):
-
+    pinecone_environment = os.getenv("PINECONE_ENVIRONMENT", "us-west1-gcp")
     pinecone.init(
     api_key=pinecone_apikey,
     environment=pinecone_environment
