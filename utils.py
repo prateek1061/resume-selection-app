@@ -1,4 +1,4 @@
-from langchain_community.vectorstores import Pinecone
+ofrom langchain_community.vectorstores import Pinecone
 from langchain.llms import OpenAI
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.schema import Document
@@ -47,7 +47,7 @@ def create_embeddings_load_data():
 
 #Function to push data to Vector Store - Pinecone here
 def push_to_pinecone(pinecone_apikey,PINECONE_INDEX_NAME,embeddings,docs):
-    pinecone_environment = os.getenv("PINECONE_ENVIRONMENT")
+    pinecone_environment = "us-east-1"
     pinecone.init(
     api_key=pinecone_apikey,
     environment=pinecone_environment
