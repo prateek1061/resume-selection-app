@@ -47,6 +47,8 @@ def create_embeddings_load_data():
 
 #Function to push data to Vector Store - Pinecone here
 def push_to_pinecone(pinecone_apikey,PINECONE_INDEX_NAME,embeddings,docs):
+    #editted the env name
+    
     pinecone_environment = "us-east-1"
     pinecone.init(
     api_key=pinecone_apikey,
