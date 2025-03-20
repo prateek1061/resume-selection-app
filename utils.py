@@ -7,7 +7,7 @@ from pypdf import PdfReader
 from langchain.llms.openai import OpenAI
 from langchain.chains.summarize import load_summarize_chain
 from langchain.llms import HuggingFaceHub
-
+import os
 import time
 
 
